@@ -1,101 +1,159 @@
-import Image from "next/image";
+import React, { useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Plus,
+  CheckCircle2,
+  AlertCircle,
+  Clock,
+  Globe,
+  Server,
+} from "lucide-react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [services] = useState([
+    {
+      id: 1,
+      name: "Talesy Backend",
+      url: "https://talesy.karlowitz.com",
+      type: "API",
+      status: "healthy",
+      lastChecked: "2 min ago",
+      responseTime: "238ms",
+      uptime: "99.9%",
+    },
+    {
+      id: 2,
+      name: "Talesy Website",
+      url: "https://talesyapp.com",
+      type: "Website",
+      status: "warning",
+      lastChecked: "1 min ago",
+      responseTime: "890ms",
+      uptime: "98.5%",
+    },
+  ]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "healthy":
+        return <CheckCircle2 className="text-green-500" />;
+      case "warning":
+        return <AlertCircle className="text-yellow-500" />;
+      case "down":
+        return <AlertCircle className="text-red-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const getTypeIcon = (type) => {
+    return type === "API" ? (
+      <Server className="w-4 h-4" />
+    ) : (
+      <Globe className="w-4 h-4" />
+    );
+  };
+
+  return (
+    <div className="min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
+      <main className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Systems Monitor</h1>
+            <p className="text-gray-500 dark:text-gray-400">
+              Monitor your services and endpoints
+            </p>
+          </div>
+          <Button className="flex items-center gap-2">
+            <Plus size={16} />
+            Add Service
+          </Button>
+        </div>
+
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-500">Total Services</div>
+                <Globe className="text-blue-500" />
+              </div>
+              <div className="text-2xl font-bold mt-2">{services.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-500">Healthy</div>
+                <CheckCircle2 className="text-green-500" />
+              </div>
+              <div className="text-2xl font-bold mt-2">
+                {services.filter((s) => s.status === "healthy").length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-gray-500">Issues</div>
+                <AlertCircle className="text-yellow-500" />
+              </div>
+              <div className="text-2xl font-bold mt-2">
+                {services.filter((s) => s.status !== "healthy").length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Services List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {services.map((service) => (
+            <Card
+              key={service.id}
+              className="hover:shadow-lg transition-shadow"
+            >
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg font-medium flex items-center gap-2">
+                  {getTypeIcon(service.type)}
+                  {service.name}
+                </CardTitle>
+                {getStatusIcon(service.status)}
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Globe size={16} />
+                    <a
+                      href={service.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline truncate"
+                    >
+                      {service.url}
+                    </a>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="text-sm">
+                      <div className="text-gray-500">Response</div>
+                      <div>{service.responseTime}</div>
+                    </div>
+                    <div className="text-sm">
+                      <div className="text-gray-500">Uptime</div>
+                      <div>{service.uptime}</div>
+                    </div>
+                    <div className="text-sm">
+                      <div className="text-gray-500">Last Check</div>
+                      <div>{service.lastChecked}</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
